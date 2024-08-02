@@ -1,4 +1,5 @@
 -- Initialize UI elements
+-- Initialize UI elements
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
@@ -59,6 +60,8 @@ CloseButton.Font = Enum.Font.SourceSans
 CloseButton.Text = "X"
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButton.TextSize = 24
+
+-- Function to create a checkbox
 local function createCheckbox(text)
     local Checkbox = Instance.new("TextButton")
     Checkbox.Parent = ScrollingFrame
@@ -79,7 +82,7 @@ local function createCheckbox(text)
             Checkbox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
         end
     end)
-    return Checkbox
+    return {button = Checkbox, isChecked = function() return isChecked end}
 end
 
 local checkboxes = {}
@@ -91,6 +94,7 @@ table.insert(checkboxes, createCheckbox("Disable Physics"))
 table.insert(checkboxes, createCheckbox("Disable Sounds"))
 table.insert(checkboxes, createCheckbox("Disable Post Processing"))
 table.insert(checkboxes, createCheckbox("Optimize Scripts"))
+
 -- Save original settings
 local originalSettings = {}
 
@@ -117,32 +121,33 @@ local function restoreOriginalSettings()
     game.Lighting.GlobalShadows = originalSettings["GlobalShadows"]
     game:GetService("RunService"):Set3dRenderingEnabled(true)
 end
+
 -- Apply settings based on checkboxes
 local function applySettings()
     saveOriginalSettings()
     for _, obj in pairs(workspace:GetDescendants()) do
-        if checkboxes[1].isChecked and (obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire")) then
+        if checkboxes[1].isChecked() and (obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire")) then
             obj.Enabled = false
-        elseif checkboxes[2].isChecked and obj:IsA("Light") then
+        elseif checkboxes[2].isChecked() and obj:IsA("Light") then
             obj.Enabled = false
-        elseif checkboxes[3].isChecked and obj:IsA("BasePart") then
+        elseif checkboxes[3].isChecked() and obj:IsA("BasePart") then
             obj.CastShadow = false
-        elseif checkboxes[4].isChecked and (obj:IsA("MeshPart") or obj:IsA("UnionOperation")) then
+        elseif checkboxes[4].isChecked() and (obj:IsA("MeshPart") or obj:IsA("UnionOperation")) then
             obj.Material = Enum.Material.SmoothPlastic
-        elseif checkboxes[5].isChecked and obj:IsA("BasePart") then
+        elseif checkboxes[5].isChecked() and obj:IsA("BasePart") then
             obj.Anchored = true
-        elseif checkboxes[6].isChecked and obj:IsA("Sound") then
+        elseif checkboxes[6].isChecked() and obj:IsA("Sound") then
             obj.Playing = false
-        elseif checkboxes[7].isChecked and obj:IsA("PostEffect") then
+        elseif checkboxes[7].isChecked() and obj:IsA("PostEffect") then
             obj.Enabled = false
         end
     end
-    game.Lighting.GlobalShadows = not checkboxes[3].isChecked
+    game.Lighting.GlobalShadows = not checkboxes[3].isChecked()
     game.Lighting.FogEnd = 100000 -- Убираем синий эффект
     game:GetService("RunService"):Set3dRenderingEnabled(false)
 
     -- Optimize scripts
-    if checkboxes[8].isChecked then
+    if checkboxes[8].isChecked() then
         for _, script in pairs(game:GetDescendants()) do
             if script:IsA("LocalScript") or script:IsA("ModuleScript") or script:IsA("Script") then
                 -- Пример оптимизации: удаление пустых строк и комментариев
@@ -153,6 +158,14 @@ local function applySettings()
             end
         end
     end
+end
+
+-- Connect buttons to functions
+ApplyButton.MouseButton1Click:Connect(applySettings)
+CloseButton.MouseButton1Click:Connect(function()
+    restoreOriginalSettings()
+    ScreenGui:Destroy()
+end)    end
 end
 ApplyButton.MouseButton1Click:Connect(applySettings)
 CloseButton.MouseButton1Click:Connect(function()
