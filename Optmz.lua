@@ -1,178 +1,180 @@
-local originalSettings = {
-    lighting = {
-        GlobalShadows = game:GetService("Lighting").GlobalShadows,
-        Brightness = game:GetService("Lighting").Brightness,
-        Ambient = game:GetService("Lighting").Ambient,
-        OutdoorAmbient = game:GetService("Lighting").OutdoorAmbient,
-        EnvironmentDiffuseScale = game:GetService("Lighting").EnvironmentDiffuseScale,
-        EnvironmentSpecularScale = game:GetService("Lighting").EnvironmentSpecularScale,
-        FogEnd = game:GetService("Lighting").FogEnd,
-        FogStart = game:GetService("Lighting").FogStart,
-    },
-    workspace = {
-        StreamingEnabled = game:GetService("Workspace").StreamingEnabled,
-        StreamingMinRadius = game:GetService("Workspace").StreamingMinRadius,
-        StreamingTargetRadius = game:GetService("Workspace").StreamingTargetRadius,
-    },
-    camera = {
-        FieldOfView = game:GetService("Workspace").CurrentCamera.FieldOfView,
-    },
-    effects = {},
-    particles = {},
-    sounds = {},
-    guis = {},
-}
+-- Initialize UI elements
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local HighButton = Instance.new("TextButton")
+local MediumButton = Instance.new("TextButton")
+local LowButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
+local DisableButton = Instance.new("TextButton")
 
-local lighting = game:GetService("Lighting")
-local workspace = game:GetService("Workspace")
+-- Configure ScreenGui
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
 
-for _, effect in pairs(lighting:GetChildren()) do
-    if effect:IsA("PostEffect") then
-        table.insert(originalSettings.effects, {effect = effect, enabled = effect.Enabled})
-    end
-end
+-- Configure Frame
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+Frame.Size = UDim2.new(0, 300, 0, 200)
+Frame.Active = true
+Frame.Draggable = true
 
-for _, obj in pairs(workspace:GetDescendants()) do
-    if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Explosion") then
-        table.insert(originalSettings.particles, {obj = obj, enabled = obj.Enabled})
-    elseif obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
-        table.insert(originalSettings.particles, {obj = obj, enabled = obj.Enabled})
-    elseif obj:IsA("Sound") then
-        table.insert(originalSettings.sounds, {sound = obj, volume = obj.Volume})
-    elseif obj:IsA("ScreenGui") or obj:IsA("BillboardGui") then
-        table.insert(originalSettings.guis, {gui = obj, enabled = obj.Enabled})
-    end
-end
-local function applyHighOptimization()
-    local camera = workspace.CurrentCamera
+-- Configure Title
+Title.Parent = Frame
+Title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Font = Enum.Font.SourceSans
+Title.Text = "Optimization"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 24
+-- Configure HighButton
+HighButton.Parent = Frame
+HighButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+HighButton.Position = UDim2.new(0.1, 0, 0.3, 0)
+HighButton.Size = UDim2.new(0.8, 0, 0, 30)
+HighButton.Font = Enum.Font.SourceSans
+HighButton.Text = "High"
+HighButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+HighButton.TextSize = 18
 
-    -- Применение настроек
-    camera.FieldOfView = 70
-    lighting.GlobalShadows = false
+-- Configure MediumButton
+MediumButton.Parent = Frame
+MediumButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+MediumButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+MediumButton.Size = UDim2.new(0.8, 0, 0, 30)
+MediumButton.Font = Enum.Font.SourceSans
+MediumButton.Text = "Medium"
+MediumButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MediumButton.TextSize = 18
 
-    for _, effect in pairs(lighting:GetChildren()) do
-        if effect:IsA("PostEffect") then
-            effect.Enabled = false
-        end
-    end
+-- Configure LowButton
+LowButton.Parent = Frame
+LowButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+LowButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+LowButton.Size = UDim2.new(0.8, 0, 0, 30)
+LowButton.Font = Enum.Font.SourceSans
+LowButton.Text = "Low"
+LowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+LowButton.TextSize = 18
 
+-- Configure CloseButton
+CloseButton.Parent = Frame
+CloseButton.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+CloseButton.Position = UDim2.new(0.85, 0, 0, 0)
+CloseButton.Size = UDim2.new(0.15, 0, 0, 50)
+CloseButton.Font = Enum.Font.SourceSans
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 24
+
+-- Configure DisableButton
+DisableButton.Parent = Frame
+DisableButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+DisableButton.Position = UDim2.new(0.1, 0, 0.9, 0)
+DisableButton.Size = UDim2.new(0.8, 0, 0, 30)
+DisableButton.Font = Enum.Font.SourceSans
+DisableButton.Text = "Disable Optimization"
+DisableButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DisableButton.TextSize = 18
+-- Save original settings
+local originalSettings = {}
+
+local function saveOriginalSettings()
+    originalSettings["FogEnd"] = game.Lighting.FogEnd
+    originalSettings["GlobalShadows"] = game.Lighting.GlobalShadows
     for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Explosion") then
+        if obj:IsA("BasePart") or obj:IsA("Light") or obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") then
+            originalSettings[obj] = obj:Clone()
+        end
+    end
+end
+
+-- Restore original settings
+local function restoreOriginalSettings()
+    for obj, original in pairs(originalSettings) do
+        if typeof(obj) == "Instance" and obj:IsDescendantOf(workspace) then
+            local parent = obj.Parent
+            obj:Destroy()
+            original.Parent = parent
+        end
+    end
+    game.Lighting.FogEnd = originalSettings["FogEnd"]
+    game.Lighting.GlobalShadows = originalSettings["GlobalShadows"]
+    game:GetService("RunService"):Set3dRenderingEnabled(true)
+end
+
+-- Apply settings based on checkboxes
+local function applySettings()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if disableParticles and (obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire")) then
             obj.Enabled = false
-        elseif obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+        elseif disableLights and obj:IsA("Light") then
             obj.Enabled = false
-        elseif obj:IsA("BasePart") then
-            obj.CanCollide = false
-            obj.Anchored = true
+        elseif disableShadows and obj:IsA("BasePart") then
             obj.CastShadow = false
-        elseif obj:IsA("Constraint") then
+        elseif reduceTextures and (obj:IsA("MeshPart") or obj:IsA("UnionOperation")) then
+            obj.Material = Enum.Material.SmoothPlastic
+        elseif disablePhysics and obj:IsA("BasePart") then
+            obj.Anchored = true
+        elseif disableSounds and obj:IsA("Sound") then
+            obj.Playing = false
+        elseif disablePostProcessing and obj:IsA("PostEffect") then
             obj.Enabled = false
-        elseif obj:IsA("AnimationController") or obj:IsA("Animator") then
-            obj:Stop()
         end
     end
-
-    workspace.StreamingEnabled = true
-    workspace.StreamingMinRadius = 32
-    workspace.StreamingTargetRadius = 64
-
-    for _, sound in pairs(workspace:GetDescendants()) do
-        if sound:IsA("Sound") then
-            sound.Volume = 0
-        end
-    end
-
-    for _, gui in pairs(game:GetService("StarterGui"):GetChildren()) do
-        if gui:IsA("ScreenGui") or gui:IsA("BillboardGui") then
-            gui.Enabled = false
-        end
-    end
-
-    lighting.Brightness = 1
-    lighting.Ambient = Color3.fromRGB(128, 128, 128)
-    lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-    lighting.EnvironmentDiffuseScale = 0
-    lighting.EnvironmentSpecularScale = 0
-    lighting.FogEnd = 1000000
-    lighting.FogStart = 1000000
-    lighting.Bloom.Enabled = false
-    lighting.Blur.Enabled = false
-    lighting.ColorCorrection.Enabled = false
-    lighting.SunRays.Enabled = false
-
-    print("High optimization applied successfully!")
+    game.Lighting.GlobalShadows = not disableShadows
+    game.Lighting.FogEnd = 100000 -- Убираем синий эффект
+    game:GetService("RunService"):Set3dRenderingEnabled(false)
 end
 
-local function applyMediumOptimization()
-    local camera = workspace.CurrentCamera
-
-    -- Применение настроек
-    camera.FieldOfView = 70
-    lighting.GlobalShadows = false
-
-    for _, effect in pairs(lighting:GetChildren()) do
-        if effect:IsA("PostEffect") then
-            effect.Enabled = false
-        end
-    end
-
-    workspace.StreamingEnabled = true
-    workspace.StreamingMinRadius = 64
-    workspace.StreamingTargetRadius = 128
-
-    print("Medium optimization applied successfully!")
+-- High optimization
+local function highOptimization()
+    saveOriginalSettings()
+    disableParticles = true
+    disableLights = true
+    disableShadows = true
+    reduceTextures = true
+    disablePhysics = true
+    disableSounds = true
+    disablePostProcessing = true
+    applySettings()
 end
 
-local function applyLowOptimization()
-    local camera = workspace.CurrentCamera
-
-    -- Применение настроек
-    camera.FieldOfView = 70
-    lighting.GlobalShadows = true
-
-    print("Low optimization applied successfully!")
+-- Medium optimization
+local function mediumOptimization()
+    saveOriginalSettings()
+    disableParticles = true
+    disableLights = true
+    disableShadows = false
+    reduceTextures = true
+    disablePhysics = false
+    disableSounds = true
+    disablePostProcessing = true
+    applySettings()
 end
+
+-- Low optimization
+local function lowOptimization()
+    saveOriginalSettings()
+    disableParticles = true
+    disableLights = false
+    disableShadows = false
+    reduceTextures = false
+    disablePhysics = false
+    disableSounds = true
+    disablePostProcessing = true
+    applySettings()
+end
+
+-- Disable optimization
 local function disableOptimization()
-    local lighting = game:GetService("Lighting")
-    local workspace = game:GetService("Workspace")
-
-    -- Восстановление настроек освещения
-    lighting.GlobalShadows = originalSettings.lighting.GlobalShadows
-    lighting.Brightness = originalSettings.lighting.Brightness
-    lighting.Ambient = originalSettings.lighting.Ambient
-    lighting.OutdoorAmbient = originalSettings.lighting.OutdoorAmbient
-    lighting.EnvironmentDiffuseScale = originalSettings.lighting.EnvironmentDiffuseScale
-    lighting.EnvironmentSpecularScale = originalSettings.lighting.EnvironmentSpecularScale
-    lighting.FogEnd = originalSettings.lighting.FogEnd
-    lighting.FogStart = originalSettings.lighting.FogStart
-
-    -- Восстановление настроек рабочей области
-    workspace.StreamingEnabled = originalSettings.workspace.StreamingEnabled
-    workspace.StreamingMinRadius = originalSettings.workspace.StreamingMinRadius
-    workspace.StreamingTargetRadius = originalSettings.workspace.StreamingTargetRadius
-
-    -- Восстановление настроек камеры
-    workspace.CurrentCamera.FieldOfView = originalSettings.camera.FieldOfView
-
-    -- Восстановление всех эффектов
-    for _, setting in pairs(originalSettings.effects) do
-        setting.effect.Enabled = setting.enabled
-    end
-
-    -- Восстановление всех эмиттеров частиц, следов и взрывов
-    for _, setting in pairs(originalSettings.particles) do
-        setting.obj.Enabled = setting.enabled
-    end
-
-    -- Восстановление всех звуков
-    for _, setting in pairs(originalSettings.sounds) do
-        setting.sound.Volume = setting.volume
-    end
-
-    -- Восстановление всех GUI
-    for _, setting in pairs(originalSettings.guis) do
-        setting.gui.Enabled = setting.enabled
-    end
-
-    print("Optimization disabled successfully!")
+    restoreOriginalSettings()
 end
+HighButton.MouseButton1Click:Connect(highOptimization)
+MediumButton.MouseButton1Click:Connect(mediumOptimization)
+LowButton.MouseButton1Click:Connect(lowOptimization)
+DisableButton.MouseButton1Click:Connect(disableOptimization)
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
