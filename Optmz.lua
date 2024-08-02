@@ -1,5 +1,4 @@
 -- Initialize UI elements
--- Initialize UI elements
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
@@ -164,10 +163,5 @@ end
 ApplyButton.MouseButton1Click:Connect(applySettings)
 CloseButton.MouseButton1Click:Connect(function()
     restoreOriginalSettings()
-    ScreenGui:Destroy()
-end)    end
-end
-ApplyButton.MouseButton1Click:Connect(applySettings)
-CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
